@@ -3,19 +3,43 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "expo start --dev-client",
+    "dev": "expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "lint": "biome lint .",
+    "lint:apply": "biome lint --write .",
+    "format": "biome format .",
+    "format:apply": "biome format --write .",
+    "check": "biome check .",
+    "check:apply": "biome check --write .",
+    "type-check": "tsc --noEmit",
+    "quality": "npm run check && npm run type-check",
+    "quality:fix": "npm run check:apply && npm run type-check",
+    "auto-fix": "npm run check:apply",
+    "pre-commit-fix": "npm run auto-fix && npm run type-check",
+    "pre-push-fix": "npm run auto-fix && npm run quality",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:major": "standard-version --release-as major",
+    "prepare": "lefthook install"
   },
   "dependencies": {
     "expo": "~53.0.17",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
-    "react-native": "0.79.5"
+    "react-native": "0.79.5",
+    "react-native-mmkv": "^3.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "@biomejs/biome": "^2.1.1",
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@types/react": "~19.0.10",
+    "lefthook": "^1.12.2",
+    "standard-version": "^9.5.0",
+    "typescript": "~5.8.3"
   },
   "private": true
 }

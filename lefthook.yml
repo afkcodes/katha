@@ -1,0 +1,56 @@
+# Git hooks configuration for Katha project
+# This ensures code quality and consistency across commits and pushes
+
+pre-commit:
+  parallel: true
+  commands:
+    # Auto-fix lint and format issues on staged files
+    lint-and-format:
+      glob: '*.{js,ts,jsx,tsx,json,yml,yaml,md}'
+      run: npx biome check --write {staged_files}
+      stage_fixed: true
+      fail_text: |
+        🔧 Auto-fixed formatting and linting issues in staged files.
+        Files have been updated and re-staged. Please review and commit again.
+
+    # Type check after fixes (this can't be auto-fixed)
+    type-check:
+      glob: '*.{ts,tsx}'
+      run: npm run type-check
+      fail_text: |
+        ❌ TypeScript compilation errors found.
+        Please fix these type errors manually before committing.
+
+commit-msg:
+  commands:
+    # Validate commit message format
+    commitlint:
+      run: npx commitlint --edit {1}
+      fail_text: |
+        ❌ Invalid commit message format.
+        Please use conventional commit format: type(scope): description
+        Examples: feat(auth): add login functionality, fix(ui): resolve button styling
+
+pre-push:
+  parallel: false # Run sequentially to handle fixes properly
+  commands:
+    # Auto-fix all lint and format issues in entire project
+    full-quality-fix:
+      run: npm run auto-fix
+      fail_text: |
+        🔧 Auto-fixed quality issues across the entire project.
+        Please review the changes and push again.
+
+    # Final verification that everything is clean
+    final-quality-check:
+      run: npm run quality
+      fail_text: |
+        ❌ Quality check failed after auto-fixes.
+        Some issues require manual attention. Please review and fix.
+
+    # Security audit (can't be auto-fixed, requires manual review)
+    security-audit:
+      run: npm audit --audit-level moderate
+      fail_text: |
+        🔒 Security vulnerabilities detected.
+        Run 'npm audit' for details and fix before pushing.
