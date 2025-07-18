@@ -1,5 +1,73 @@
+// Define the ColorPalette type explicitly to ensure all properties are required
+export type ColorPalette = {
+  // Background colors
+  background: string;
+  surface: string;
+  surfaceVariant: string;
+  overlay: string;
+
+  // Primary colors
+  primary: string;
+  primaryVariant: string;
+  primaryLight: string;
+  primaryContainer: string;
+
+  // Secondary colors
+  secondary: string;
+  secondaryVariant: string;
+  secondaryLight: string;
+  secondaryContainer: string;
+
+  // Accent colors
+  accent: string;
+  accentVariant: string;
+  accentLight: string;
+  accentContainer: string;
+
+  // Text colors
+  text: string;
+  textSecondary: string;
+  textTertiary: string;
+  textInverse: string;
+  textOnPrimary: string;
+
+  // Story/content specific colors
+  storyCard: string;
+  characterCard: string;
+  epicCard: string;
+  verse: string;
+  dialogue: string;
+  narrative: string;
+
+  // Mythological element colors
+  divine: string;
+  heroic: string;
+  demonic: string;
+  nature: string;
+  celestial: string;
+  earthly: string;
+
+  // Status colors
+  success: string;
+  warning: string;
+  error: string;
+  info: string;
+
+  // Border colors
+  border: string;
+  borderFocus: string;
+  borderError: string;
+
+  // Utility colors
+  transparent: string;
+  shadow: string;
+};
+
+// Define available color schemes
+export type ColorScheme = 'dark' | 'light';
+
 // Mythological color palette inspired by Indian epics and traditions
-export const Colors = {
+export const Colors: Record<ColorScheme, ColorPalette> = {
   // Dark Theme - Pure black and charcoal inspired by night and shadow
   dark: {
     // Background colors - True blacks and dark grays
@@ -8,11 +76,11 @@ export const Colors = {
     surfaceVariant: '#1C1C1E', // Card backgrounds (iOS dark)
     overlay: '#2C2C2E', // Modal overlays
 
-    // Primary colors - Sacred saffron/orange (divine fire, sacred flames)
-    primary: '#FF6B35', // Sacred saffron
-    primaryVariant: '#E55A2B', // Deeper saffron
-    primaryLight: '#FF8A5B', // Lighter saffron
-    primaryContainer: '#1A0A08', // Very dark saffron container
+    // Primary colors - Divine purple/violet (representing spirituality and divine energy)
+    primary: '#8B5CF6', // Divine violet (vibrant but deep)
+    primaryVariant: '#6D28D9', // Deeper violet
+    primaryLight: '#A78BFA', // Lighter violet
+    primaryContainer: '#1E1B24', // Very dark violet container
 
     // Secondary colors - Muted divine blue (Krishna, Vishnu, celestial waters)
     secondary: '#4285F4', // Google blue (more neutral)
@@ -42,7 +110,7 @@ export const Colors = {
     narrative: '#0F0F0F', // Narrative text background
 
     // Mythological element colors (keeping vibrant colors but on dark base)
-    divine: '#8B5DFF', // Divine/godly elements (bright purple)
+    divine: '#A78BFA', // Divine/godly elements (slightly lighter variant of primary)
     heroic: '#34D399', // Heroic characters (bright emerald)
     demonic: '#FF5555', // Demonic/evil elements (bright red)
     nature: '#4ADE80', // Natural elements (bright green)
@@ -57,7 +125,7 @@ export const Colors = {
 
     // Border colors
     border: '#2C2C2E', // Dark gray borders
-    borderFocus: '#FF6B35', // Focused borders (saffron)
+    borderFocus: '#8B5CF6', // Focused borders (divine purple, matches primary)
     borderError: '#FF5555', // Error borders
 
     // Utility colors
@@ -73,11 +141,11 @@ export const Colors = {
     surfaceVariant: '#FDE68A', // Cards with warm tint
     overlay: '#F3E8FF', // Overlays
 
-    // Primary colors - Vibrant saffron (sacred color in Hinduism)
-    primary: '#EA580C', // Sacred saffron
-    primaryVariant: '#C2410C', // Deeper saffron
-    primaryLight: '#FB923C', // Lighter saffron
-    primaryContainer: '#FED7AA', // Light saffron container
+    // Primary colors - Divine purple/violet (representing spirituality and wisdom)
+    primary: '#8B5CF6', // Divine violet (vibrant but deep)
+    primaryVariant: '#6D28D9', // Deeper violet
+    primaryLight: '#A78BFA', // Lighter violet
+    primaryContainer: '#F3E8FF', // Light violet container
 
     // Secondary colors - Royal blue (divine wisdom)
     secondary: '#1E40AF', // Divine blue
@@ -107,7 +175,7 @@ export const Colors = {
     narrative: '#FAFAFA', // Narrative backgrounds
 
     // Mythological element colors
-    divine: '#4F46E5', // Divine elements (indigo)
+    divine: '#8B5CF6', // Divine elements (matching primary)
     heroic: '#059669', // Heroic characters (emerald)
     demonic: '#B91C1C', // Demonic elements (dark red)
     nature: '#16A34A', // Natural elements (green)
@@ -122,7 +190,7 @@ export const Colors = {
 
     // Border colors
     border: '#E7E5E4', // Default borders
-    borderFocus: '#EA580C', // Focused borders
+    borderFocus: '#8B5CF6', // Focused borders (divine violet, matches primary)
     borderError: '#DC2626', // Error borders
 
     // Utility colors
@@ -130,6 +198,3 @@ export const Colors = {
     shadow: 'rgba(0, 0, 0, 0.1)',
   },
 };
-
-export type ColorScheme = keyof typeof Colors;
-export type ColorPalette = typeof Colors.dark;

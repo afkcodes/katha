@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "कथा"
+  },
+  "navigation": {
+    "home": "होम",
+    "settings": "सेटिंग्स",
+    "bhajans": "भजन"
+  },
+  "settings": {
+    "title": "सेटिंग्स"
+  },
+  "bhajans": {
+    "title": "भजन"
+  },
+  "home": {
+    "hero": {
+      "new": "नया",
+      "watch": "अभी देखें",
+      "myList": "+ मेरी सूची",
+      "episodes": "{{count}} एपिसोड",
+      "episode_one": "1 एपिसोड",
+      "episode_other": "{{count}} एपिसोड"
+    },
+    "category": {
+      "seeAll": "सभी देखें"
+    },
+    "contentType": {
+      "bhajan": "भजन",
+      "episode": "एपिसोड",
+      "story": "कहानी",
+      "movie": "फिल्म"
+    }
+  }
+}

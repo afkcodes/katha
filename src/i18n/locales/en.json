@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "Katha"
+  },
+  "navigation": {
+    "home": "Home",
+    "settings": "Settings",
+    "bhajans": "Bhajans"
+  },
+  "settings": {
+    "title": "Settings"
+  },
+  "bhajans": {
+    "title": "Bhajans"
+  },
+  "home": {
+    "hero": {
+      "new": "NEW",
+      "watch": "Watch Now",
+      "myList": "+ My List",
+      "episodes": "{{count}} Episodes",
+      "episode_one": "1 Episode",
+      "episode_other": "{{count}} Episodes"
+    },
+    "category": {
+      "seeAll": "See All"
+    },
+    "contentType": {
+      "bhajan": "Bhajan",
+      "episode": "Episode",
+      "story": "Story",
+      "movie": "Movie"
+    }
+  }
+}

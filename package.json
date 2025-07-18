@@ -25,11 +25,26 @@
     "prepare": "lefthook install"
   },
   "dependencies": {
+    "event-target-polyfill": "^0.0.4",
     "expo": "~53.0.17",
+    "expo-libvlc-player": "^0.1.24",
+    "expo-linear-gradient": "^14.1.5",
     "expo-status-bar": "~2.2.3",
+    "i18next": "^25.3.2",
+    "navigation": "^6.3.0",
+    "navigation-react": "^4.12.0",
+    "navigation-react-native": "^9.31.3",
     "react": "19.0.0",
+    "react-i18next": "^15.6.0",
     "react-native": "0.79.5",
-    "react-native-mmkv": "^3.3.0"
+    "react-native-edge-to-edge": "^1.6.2",
+    "react-native-localize": "^3.5.1",
+    "react-native-mmkv": "^3.1.0",
+    "react-native-safe-area-context": "^5.5.2",
+    "react-native-url-polyfill": "^2.0.0",
+    "text-encoding-polyfill": "^0.6.7",
+    "web-streams-polyfill": "^4.1.0",
+    "youtubei.js": "^14.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
