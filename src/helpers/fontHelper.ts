@@ -1,6 +1,30 @@
 import type { TextStyle } from 'react-native';
 
 /**
+ * Helper function to get the appropriate font family based on font weight
+ */
+export const getFontFamily = (weight?: TextStyle['fontWeight']): string => {
+  switch (weight) {
+    case 'bold':
+    case '700':
+    case '800':
+    case '900':
+      return 'Rubik-Bold';
+    case '600':
+      return 'Rubik-SemiBold';
+    case '500':
+      return 'Rubik-Medium';
+    case 'normal':
+    case '400':
+    case '300':
+    case '200':
+    case '100':
+    default:
+      return 'Rubik-Regular';
+  }
+};
+
+/**
  * Utility function to create text styles with Rubik font family
  * This ensures consistent font usage across the entire app
  */
@@ -11,7 +35,7 @@ export const createTextStyle = (
 ): TextStyle => {
   return {
     fontSize,
-    fontFamily: 'Rubik', // Always use Rubik, React Native handles font weight variants
+    fontFamily: getFontFamily(fontWeight),
     fontWeight,
     ...additionalStyles,
   };

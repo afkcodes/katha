@@ -18,6 +18,9 @@ export interface BaseEntity {
   updatedAt: string;
 }
 
+// Export streaming UI types
+export * from './content';
+
 // Epic/Scripture types
 export interface Epic extends BaseEntity {
   name: string;

@@ -279,7 +279,7 @@ export const useTheme = (): ThemeContextType => {
 // Hook for convenient color access
 export const useColors = (): ColorPalette => {
   const { colors } = useTheme();
-  return colors;
+  return colors as ColorPalette;
 };
 
 // Hook for convenient spacing access

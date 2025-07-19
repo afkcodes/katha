@@ -14,7 +14,8 @@
       "~/types/*": ["./src/types/*"],
       "~/constants/*": ["./src/constants/*"],
       "~/theme/*": ["./src/theme/*"],
-      "~/assets/*": ["./assets/*"]
+      "~/assets/*": ["./assets/*"],
+      "~/i18n/*": ["src/i18n/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx"]

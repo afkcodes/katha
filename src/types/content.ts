@@ -1,0 +1,54 @@
+/**
+ * Types for the streaming-style content items
+ */
+
+export interface ContentItem {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  type: 'episode' | 'bhajan' | 'story' | 'movie';
+  duration?: string;
+  releaseYear?: number;
+  tags?: string[];
+}
+
+export interface ContentCategory {
+  id: string;
+  title: string;
+  items: ContentItem[];
+}
+
+export interface HeroContent extends ContentItem {
+  buttonLabel?: string;
+  logoImageUrl?: string;
+  tagline?: string;
+}
+
+// API Response Types
+export interface ApiMetaData {
+  id: string;
+  title: string;
+  poster: string;
+  rating: string;
+  duration: string;
+  imdbId: string;
+  actors: string[];
+  releaseYear: string;
+  type: string;
+  category: string;
+  description: string;
+  episodeCount: number;
+}
+
+export interface ApiTitle {
+  metaData: ApiMetaData;
+  _id: string;
+}
+
+export interface ApiResponse {
+  status: string;
+  data: ApiTitle[];
+  message: string;
+  code: number;
+}

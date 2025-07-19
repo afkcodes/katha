@@ -2,6 +2,17 @@
   "expo": {
     "name": "Katha",
     "slug": "Katha",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "plugins": [
+      [
+        "react-native-edge-to-edge",
+        {
+          "android": {
+            "parentTheme": "Default",
+            "enforceNavigationBarContrast": false
+          }
+        }
+      ]
+    ]
   }
 }
