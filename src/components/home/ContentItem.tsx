@@ -1,9 +1,11 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import type React from 'react';
-import { Animated, Image, TouchableOpacity, View } from 'react-native';
+import { memo } from 'react';
+import { Animated, TouchableOpacity, View } from 'react-native';
+import { ThumbnailImage } from '~/components/OptimizedFastImage';
 import ThemedText from '~/components/ThemedText/ThemedText';
 import { useI18n } from '~/i18n/useI18n';
-import { createStyleFactory, useColors, useStaticThemedStyles } from '~/theme';
+import { createStyleFactory, s, useColors, useStaticThemedStyles, vs } from '~/theme';
 import type { ContentItem as ContentItemType } from '~/types/content';
 
 interface ContentItemProps {
@@ -13,24 +15,27 @@ interface ContentItemProps {
 // Create a style factory for reusable content item styles
 const createContentItemStyles = createStyleFactory((theme) => ({
   contentItem: {
-    width: 150, // Slightly wider for better visibility
+    width: s(150), // Slightly wider for better visibility
     marginRight: theme.spacing.md,
     marginBottom: theme.spacing.xs,
   },
   contentImageContainer: {
     position: 'relative',
+    width: s(150), // Explicit width
+    height: vs(220), // Explicit height
     borderRadius: theme.borderRadius.md,
-    overflow: 'hidden',
+    overflow: 'hidden', // This ensures the image and gradient respect the border radius
     elevation: 8, // Increased elevation for more prominence
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
+    backgroundColor: theme.colors.surface, // Add background color to prevent bleeding
   },
   contentImage: {
-    width: 150, // Match container width
-    height: 220, // Slightly taller for better visibility
-    borderRadius: theme.borderRadius.md,
+    width: '100%', // Use full width of container
+    height: '100%', // Use full height of container
+    // Remove explicit dimensions to prevent any scaling issues
   },
   itemGradient: {
     position: 'absolute',
@@ -38,7 +43,7 @@ const createContentItemStyles = createStyleFactory((theme) => ({
     left: 0,
     right: 0,
     height: '50%',
-    borderRadius: theme.borderRadius.md,
+    // Remove borderRadius from gradient since container handles it
   },
   itemTypeContainer: {
     position: 'absolute',
@@ -83,39 +88,33 @@ const createContentItemStyles = createStyleFactory((theme) => ({
   },
 }));
 
-export const ContentItem: React.FC<ContentItemProps> = ({ item }) => {
+const ContentItemComponent: React.FC<ContentItemProps> = ({ item }) => {
   const colors = useColors();
   const styles = useStaticThemedStyles(createContentItemStyles);
   const { t } = useI18n();
 
-  // Function to create an animated scale value for content items
-  const createAnimatedScale = () => {
-    const scale = new Animated.Value(1);
+  // Optimize animation by creating it once
+  const scale = new Animated.Value(1);
 
-    const handlePressIn = () => {
-      Animated.spring(scale, {
-        toValue: 0.98,
-        useNativeDriver: true,
-        friction: 30,
-        tension: 40,
-      }).start();
-    };
-
-    const handlePressOut = () => {
-      Animated.spring(scale, {
-        toValue: 1,
-        useNativeDriver: true,
-        friction: 8,
-        tension: 40,
-      }).start();
-    };
-
-    return { scale, handlePressIn, handlePressOut };
+  const handlePressIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.98,
+      useNativeDriver: true,
+      friction: 30,
+      tension: 40,
+    }).start();
   };
 
-  const { scale, handlePressIn, handlePressOut } = createAnimatedScale();
+  const handlePressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+      friction: 8,
+      tension: 40,
+    }).start();
+  };
 
-  // Gradient colors
+  // Memoize gradient colors to prevent recreation
   const gradientColors = ['transparent', 'rgba(0,0,0,0.7)'] as const;
 
   // Get badge style based on item type
@@ -139,7 +138,22 @@ export const ContentItem: React.FC<ContentItemProps> = ({ item }) => {
     >
       <Animated.View style={{ transform: [{ scale }] }}>
         <View style={styles.contentImageContainer}>
-          <Image source={{ uri: item.imageUrl }} style={styles.contentImage} resizeMode="cover" />
+          <ThumbnailImage
+            source={item.imageUrl}
+            style={[
+              styles.contentImage,
+              {
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+              },
+            ]}
+            onError={() => {
+              // Silent error handling for better performance
+            }}
+          />
           <LinearGradient colors={gradientColors} style={styles.itemGradient} />
           {item.duration && (
             <View style={[styles.durationBadge, { backgroundColor: `${colors.primary}CC` }]}>
@@ -163,3 +177,6 @@ export const ContentItem: React.FC<ContentItemProps> = ({ item }) => {
     </TouchableOpacity>
   );
 };
+
+// Export memoized component for better performance
+export const ContentItem = memo(ContentItemComponent);

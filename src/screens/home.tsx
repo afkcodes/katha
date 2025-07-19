@@ -1,63 +1,11 @@
 import type React from 'react';
-import { useRef } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
-import { ContentCategory, HeroBanner, SafeAreaAwareView } from '~/components';
+import { ContentCategory, ErrorState, HeroBanner, SafeAreaAwareView } from '~/components';
+import { useLiveActionContent, useLiveActionHeroContent } from '~/hooks/useContentQuery';
+import useNestedScroll from '~/hooks/useNestedScroll';
 import type { ContentCategory as ContentCategoryType, HeroContent } from '~/types/content';
 
-// Mock data for the home screen
-const HERO_CONTENT: HeroContent = {
-  id: 'hero1',
-  title: 'Ramayana',
-  description:
-    'The epic journey of Lord Rama to rescue Sita from the demon king Ravana. Experience this divine tale of courage, honor, and righteousness.',
-  imageUrl:
-    'https://www.dneg.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2F3sjsytt3tkv5%2F4TZbGmtfPDnaK6oUTvpn55%2F5f293d924de5cf48d419f3460603de5d%2F1920X1080_DNEG_RD_With_Logo.jpg&w=3840&q=75',
-  logoImageUrl: undefined, // Removed problematic image
-  type: 'story',
-  buttonLabel: 'Watch Now',
-  releaseYear: 2023,
-  tags: ['Epic', 'Adventure', 'Spiritual'],
-};
-
-const TRENDING_NOW: ContentCategoryType = {
-  id: 'trending',
-  title: 'Trending Now',
-  items: [
-    {
-      id: 'trend1',
-      title: 'Krishna Leela',
-      imageUrl:
-        'https://www.dneg.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2F3sjsytt3tkv5%2F4TZbGmtfPDnaK6oUTvpn55%2F5f293d924de5cf48d419f3460603de5d%2F1920X1080_DNEG_RD_With_Logo.jpg&w=3840&q=75',
-      type: 'episode',
-      duration: '22 min',
-    },
-    {
-      id: 'trend2',
-      title: 'Mahabharata: Kurukshetra',
-      imageUrl:
-        'https://www.dneg.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2F3sjsytt3tkv5%2F4TZbGmtfPDnaK6oUTvpn55%2F5f293d924de5cf48d419f3460603de5d%2F1920X1080_DNEG_RD_With_Logo.jpg&w=3840&q=75',
-      type: 'episode',
-      duration: '45 min',
-    },
-    {
-      id: 'trend3',
-      title: 'Hanuman: The Divine Hero',
-      imageUrl:
-        'https://www.dneg.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2F3sjsytt3tkv5%2F4TZbGmtfPDnaK6oUTvpn55%2F5f293d924de5cf48d419f3460603de5d%2F1920X1080_DNEG_RD_With_Logo.jpg&w=3840&q=75',
-      type: 'story',
-      duration: '30 min',
-    },
-    {
-      id: 'trend4',
-      title: 'Ganesha Origins',
-      imageUrl:
-        'https://www.dneg.com/_next/image?url=https%3A%2F%2Fimages.ctfassets.net%2F3sjsytt3tkv5%2F4TZbGmtfPDnaK6oUTvpn55%2F5f293d924de5cf48d419f3460603de5d%2F1920X1080_DNEG_RD_With_Logo.jpg&w=3840&q=75',
-      type: 'story',
-      duration: '26 min',
-    },
-  ],
-};
-
+// Mock data for fallback content - moved outside component to prevent re-creation
 const POPULAR_BHAJANS: ContentCategoryType = {
   id: 'bhajans',
   title: 'Popular Bhajans',
@@ -128,32 +76,101 @@ const CONTINUE_WATCHING: ContentCategoryType = {
   ],
 };
 
+// Default hero content as fallback - moved outside to prevent re-creation
+const DEFAULT_HERO_CONTENT: HeroContent = {
+  id: 'hero1',
+  title: 'Ramayana',
+  description:
+    'The epic journey of Lord Rama to rescue Sita from the demon king Ravana. Experience this divine tale of courage, honor, and righteousness.',
+  imageUrl:
+    'https://m.media-amazon.com/images/M/MV5BZmY3MTZmMmItNjQ4My00Njg5LWIxNjctZGQwOTFlYTAxNjM4XkEyXkFqcGc@._V1_.jpg',
+  logoImageUrl: undefined,
+  type: 'story',
+  buttonLabel: 'Watch Now',
+  releaseYear: 2023,
+  tags: ['Epic', 'Adventure', 'Spiritual'],
+};
+
 const Home: React.FC = () => {
-  const scrollY = useRef(new Animated.Value(0)).current;
+  // Disable debug logging for better performance
+  const { parentProps, childProps } = useNestedScroll(false);
+
+  // Fetch hero content and live action titles
+  const {
+    data: heroContent,
+    error: heroError,
+    refetch: refetchHero,
+    isLoading: heroLoading,
+  } = useLiveActionHeroContent();
+
+  const {
+    data: liveActionContent,
+    error: contentError,
+    refetch: refetchContent,
+    isLoading: contentLoading,
+  } = useLiveActionContent();
+
+  // Memoize error and loading states to prevent unnecessary re-renders
+  const hasError = heroError && contentError;
+  const isLoading = heroLoading && contentLoading;
+
+  const handleRetry = async () => {
+    await Promise.all([refetchHero(), refetchContent()]);
+  };
+
+  // Show error state if both queries failed
+  if (hasError && !isLoading) {
+    return (
+      <SafeAreaAwareView
+        applyTopInset={false}
+        applyBottomInset={false}
+        useThemedBackground={true}
+        style={styles.container}
+      >
+        <ErrorState
+          error={heroError || contentError}
+          onRetry={handleRetry}
+          title="Unable to load content"
+          subtitle="Please check your connection and try again."
+        />
+      </SafeAreaAwareView>
+    );
+  }
+
+  // Use fallback hero content if needed
+  const displayHeroContent = heroContent || DEFAULT_HERO_CONTENT;
+
+  // Create live action category only when needed
+  const liveActionCategory: ContentCategoryType | null =
+    liveActionContent && liveActionContent.length > 0
+      ? {
+          id: 'live_action',
+          title: 'Live Action Series',
+          items: liveActionContent,
+        }
+      : null;
 
   return (
     <SafeAreaAwareView
       applyTopInset={false}
       applyBottomInset={false} // Don't apply bottom inset since we have tabs
       useThemedBackground={true}
-      style={{ flex: 1 }}
+      style={styles.container}
     >
       <Animated.ScrollView
-        style={{ flex: 1, height: '100%', width: '100%' }} // Ensure full width and height
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-          useNativeDriver: true,
-        })}
-        scrollEventThrottle={16}
-        decelerationRate="normal"
-        bounces={true}
+        removeClippedSubviews={true} // Performance optimization
+        {...parentProps}
       >
-        <HeroBanner heroContent={HERO_CONTENT} />
-        <View style={{ paddingBottom: 0, paddingHorizontal: 0 }}>
-          <ContentCategory category={TRENDING_NOW} />
-          <ContentCategory category={CONTINUE_WATCHING} />
-          <ContentCategory category={POPULAR_BHAJANS} />
+        <HeroBanner heroContent={displayHeroContent} />
+        <View style={styles.contentWrapper}>
+          {liveActionCategory && (
+            <ContentCategory category={liveActionCategory} scrollProps={childProps} />
+          )}
+          <ContentCategory category={POPULAR_BHAJANS} scrollProps={childProps} />
+          <ContentCategory category={CONTINUE_WATCHING} scrollProps={childProps} />
         </View>
       </Animated.ScrollView>
     </SafeAreaAwareView>
@@ -161,9 +178,21 @@ const Home: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    height: '100%',
+    width: '100%',
+  },
   scrollContent: {
     paddingBottom: 40,
     flexGrow: 1,
+    paddingHorizontal: 0,
+  },
+  contentWrapper: {
+    paddingBottom: 0,
     paddingHorizontal: 0,
   },
 });

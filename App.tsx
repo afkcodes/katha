@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { FontLoader } from '~/components';
 import '~/i18n'; // Initialize i18n
 import Tabs from '~/navigation/Tabs';
+import { ReactQueryProvider } from '~/providers/ReactQueryProvider';
 import { ThemeProvider, useTheme } from '~/theme';
 
 const baseNavigator = new StateNavigator([{ key: 'base' }]);
@@ -30,13 +31,15 @@ const AppContent = () => {
 
 const App = () => {
   return (
-    <ThemeProvider initialTheme="auto">
-      <SafeAreaProvider>
-        <FontLoader>
-          <AppContent />
-        </FontLoader>
-      </SafeAreaProvider>
-    </ThemeProvider>
+    <ReactQueryProvider>
+      <ThemeProvider initialTheme="auto">
+        <SafeAreaProvider>
+          <FontLoader>
+            <AppContent />
+          </FontLoader>
+        </SafeAreaProvider>
+      </ThemeProvider>
+    </ReactQueryProvider>
   );
 };
 

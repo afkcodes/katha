@@ -24,3 +24,31 @@ export interface HeroContent extends ContentItem {
   logoImageUrl?: string;
   tagline?: string;
 }
+
+// API Response Types
+export interface ApiMetaData {
+  id: string;
+  title: string;
+  poster: string;
+  rating: string;
+  duration: string;
+  imdbId: string;
+  actors: string[];
+  releaseYear: string;
+  type: string;
+  category: string;
+  description: string;
+  episodeCount: number;
+}
+
+export interface ApiTitle {
+  metaData: ApiMetaData;
+  _id: string;
+}
+
+export interface ApiResponse {
+  status: string;
+  data: ApiTitle[];
+  message: string;
+  code: number;
+}

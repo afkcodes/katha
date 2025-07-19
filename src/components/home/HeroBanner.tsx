@@ -1,7 +1,9 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { Play, Plus, Star } from 'lucide-react-native';
 import type React from 'react';
-import { ImageBackground, View } from 'react-native';
-import { GradientButton } from '~/components/GradientButton';
+import { memo, useMemo } from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import { FastImageBackground } from '~/components/FastImageBackground';
 import ThemedText from '~/components/ThemedText/ThemedText';
 import { useI18n } from '~/i18n/useI18n';
 import { createStyleFactory, useColors, useStaticThemedStyles } from '~/theme';
@@ -15,183 +17,213 @@ interface HeroBannerProps {
 const createHeroBannerStyles = createStyleFactory((theme) => ({
   heroSection: {
     width: '100%',
-    height: 580,
+    height: 540,
   },
   heroImage: {
     width: '100%',
     height: '100%',
   },
-  heroTitleOverlay: {
+  gradientOverlay: {
     position: 'absolute',
-    top: '20%',
+    top: 0,
     left: 0,
     right: 0,
-    alignItems: 'center',
-    paddingHorizontal: theme.spacing.lg,
-  },
-  heroTitleText: {
-    color: 'rgba(255, 215, 0, 0.9)', // Gold color
-    fontWeight: 'bold',
-    textAlign: 'center',
-    textTransform: 'uppercase',
-    letterSpacing: 2,
-    textShadowColor: 'rgba(0,0,0,0.9)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
-  },
-  heroGradient: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'flex-end',
-    paddingHorizontal: theme.spacing.lg,
-    paddingBottom: theme.spacing.xl,
+    bottom: 0,
   },
   heroContent: {
-    width: '80%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
   },
   heroTitle: {
-    color: theme.colors.textOnPrimary,
-    letterSpacing: 1,
-    marginBottom: theme.spacing.xs,
+    color: 'white',
+    marginBottom: theme.spacing.sm,
   },
   heroDescription: {
-    color: theme.colors.textOnPrimary,
+    color: 'rgba(255,255,255,0.95)',
+    fontSize: 16,
+    fontWeight: '400',
     marginBottom: theme.spacing.lg,
-    textShadowColor: 'rgba(0,0,0,0.9)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 5,
-    opacity: 0.9,
-    lineHeight: 20,
+    lineHeight: 22,
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
-  heroLogo: {
-    width: 200,
-    height: 60,
-    marginBottom: theme.spacing.lg,
-  },
-  tagContainer: {
+  heroMeta: {
     flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.xl,
     flexWrap: 'wrap',
-    marginBottom: theme.spacing.lg,
+    gap: theme.spacing.sm,
   },
-  tag: {
-    paddingVertical: theme.spacing.xs,
-    paddingHorizontal: theme.spacing.sm,
-    borderRadius: 16,
-    marginRight: theme.spacing.xs,
-    marginBottom: theme.spacing.xs,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  tagText: {
-    color: theme.colors.textOnPrimary,
-  },
-  tagAccent: {
-    backgroundColor: `${theme.colors.accent}AA`,
-  },
-  tagPrimary: {
-    backgroundColor: `${theme.colors.primary}AA`,
-  },
-  buttonRow: {
+  ratingContainer: {
     flexDirection: 'row',
-    marginTop: theme.spacing.xs,
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
-  buttonText: {
-    color: theme.colors.textOnPrimary,
-    letterSpacing: 0.5,
+  ratingText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  yearBadge: {
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  yearText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  genreTag: {
+    backgroundColor: 'rgba(139, 92, 246, 0.8)',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
+    borderRadius: theme.borderRadius.lg,
+  },
+  genreText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
   },
   primaryButton: {
-    paddingVertical: theme.spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: theme.spacing.md + 2,
     paddingHorizontal: theme.spacing.xl,
     borderRadius: theme.borderRadius.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: theme.spacing.md,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
+    shadowColor: theme.colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 8,
+    flex: 1,
+    maxWidth: 200,
+    overflow: 'hidden',
+    gap: theme.spacing.md,
+  },
+  primaryButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '700',
+    marginLeft: theme.spacing.xs,
+    letterSpacing: 0.3,
   },
   secondaryButton: {
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.xl,
-    borderRadius: theme.borderRadius.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: 'rgba(0,0,0,0.5)',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: 'rgba(0,0,0,0.3)',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5,
+    shadowRadius: 8,
+    elevation: 6,
   },
 }));
 
-export const HeroBanner: React.FC<HeroBannerProps> = ({ heroContent }) => {
-  const colors = useColors();
+const HeroBannerComponent: React.FC<HeroBannerProps> = ({ heroContent }) => {
   const styles = useStaticThemedStyles(createHeroBannerStyles);
+  const colors = useColors();
   const { t } = useI18n();
 
-  // Gradient constants
-  const gradientColors = [
-    'transparent',
-    'rgba(0,0,0,0.6)',
-    'rgba(0,0,0,0.85)',
-    colors.background,
-  ] as const;
+  // Memoize gradient colors to prevent recreation on every render
+  const gradientColors = useMemo(
+    () =>
+      [
+        'transparent',
+        'rgba(0,0,0,0.2)',
+        'rgba(0,0,0,0.6)',
+        'rgba(0,0,0,0.8)',
+        colors.background,
+      ] as const,
+    [colors.background]
+  );
 
-  const gradientLocations = [0, 0.4, 0.75, 1] as const;
+  const gradientLocations = useMemo(() => [0, 0.35, 0.6, 0.8, 1] as const, []);
 
   return (
     <View style={styles.heroSection}>
-      <ImageBackground source={{ uri: heroContent.imageUrl }} style={styles.heroImage}>
+      <FastImageBackground
+        source={{ uri: heroContent.imageUrl }}
+        style={styles.heroImage}
+        priority="high"
+        onError={() => {
+          // Silent error handling for better performance
+        }}
+      >
         <LinearGradient
           colors={gradientColors}
           locations={gradientLocations}
-          style={styles.heroGradient}
-        >
-          <View style={styles.heroContent}>
-            <ThemedText variant="headlineLarge" style={styles.heroTitle}>
-              {heroContent.title}
-            </ThemedText>
+          style={styles.gradientOverlay}
+        />
+        <View style={styles.heroContent}>
+          <ThemedText variant="displayMedium" fontWeight="700" style={styles.heroTitle}>
+            {heroContent.title}
+          </ThemedText>
 
-            <ThemedText variant="bodyMedium" style={styles.heroDescription}>
-              {heroContent.description}
-            </ThemedText>
+          <ThemedText style={styles.heroDescription}>{heroContent.description}</ThemedText>
 
-            <View style={styles.tagContainer}>
-              {heroContent.tags?.map((tag) => (
-                <View key={`tag-${tag}`} style={[styles.tag, styles.tagAccent]}>
-                  <ThemedText variant="bodySmall" style={styles.tagText}>
-                    {tag}
-                  </ThemedText>
-                </View>
-              ))}
-              {heroContent.releaseYear && (
-                <View style={[styles.tag, styles.tagPrimary]}>
-                  <ThemedText variant="labelSmall" style={styles.tagText}>
-                    {heroContent.releaseYear}
-                  </ThemedText>
-                </View>
-              )}
-            </View>
+          <View style={styles.heroMeta}>
+            {heroContent.releaseYear && (
+              <View style={styles.yearBadge}>
+                <ThemedText style={styles.yearText}>{heroContent.releaseYear}</ThemedText>
+              </View>
+            )}
 
-            <View style={styles.buttonRow}>
-              <GradientButton
-                label={heroContent.buttonLabel || t('home.hero.watch')}
-                variant="primary"
-                size="medium"
-                textVariant="labelLarge"
-                style={{ marginRight: 12 }}
-              />
-
-              <GradientButton
-                label={t('home.hero.myList')}
-                variant="secondary"
-                size="medium"
-                textVariant="labelLarge"
-              />
+            <View style={styles.ratingContainer}>
+              <Star size={14} color="gold" fill="gold" />
+              <ThemedText style={styles.ratingText}>4.8</ThemedText>
             </View>
           </View>
-        </LinearGradient>
-      </ImageBackground>
+
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.8}>
+              <Plus size={22} color="white" strokeWidth={2.5} />
+            </TouchableOpacity>
+
+            <TouchableOpacity activeOpacity={0.9}>
+              <LinearGradient
+                colors={[colors.primary, colors.primaryVariant]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.primaryButton}
+              >
+                <Play size={20} color="white" fill="white" />
+                <ThemedText style={styles.primaryButtonText}>
+                  {heroContent.buttonLabel || t('home.hero.watch')}
+                </ThemedText>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </FastImageBackground>
     </View>
   );
 };
+
+// Export memoized component
+export const HeroBanner = memo(HeroBannerComponent);
