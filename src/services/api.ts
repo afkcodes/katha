@@ -109,6 +109,10 @@ export const fetchLiveActionTitles = (): Promise<ApiTitle[]> => {
   return fetchTitles('live_action');
 };
 
+export const fetchAnimatedTitles = (): Promise<ApiTitle[]> => {
+  return fetchTitles('animated');
+};
+
 // Helper functions to transform API data to app format
 export const transformApiTitleToContentItem = (apiTitle: ApiTitle): ContentItem => {
   const { metaData } = apiTitle;
@@ -130,12 +134,34 @@ export const transformApiTitleToContentItem = (apiTitle: ApiTitle): ContentItem 
     return `https://${trimmedUrl}`;
   };
 
+  // Map API type to app type - handle actual API type values
+  const getContentType = (apiType: string): 'episode' | 'bhajan' | 'story' | 'movie' | 'series' => {
+    if (!apiType || apiType === 'N/A') {
+      return 'episode'; // Default fallback
+    }
+
+    const normalizedType = apiType.toLowerCase().trim();
+
+    // Map actual API type values to our app types
+    switch (normalizedType) {
+      case 'bhajan':
+        return 'bhajan';
+      case 'playlist':
+        return 'series'; // Playlists are series/collections of episodes
+      case 'movie':
+        return 'movie'; // Direct mapping for movies
+      case 'episode':
+      default:
+        return 'episode';
+    }
+  };
+
   return {
     id: apiTitle._id,
     title: metaData.title,
     description: metaData.description !== 'N/A' ? metaData.description : undefined,
     imageUrl: getImageUrl(metaData.poster),
-    type: 'episode', // All API titles seem to be episodes based on the data
+    type: getContentType(metaData.type), // Use actual type from API instead of hardcoded 'episode'
     duration: formatDuration(metaData.duration),
     releaseYear: metaData.releaseYear !== 'N/A' ? Number.parseInt(metaData.releaseYear) : undefined,
     tags: metaData.actors.filter((actor) => actor !== 'N/A'),
@@ -145,11 +171,30 @@ export const transformApiTitleToContentItem = (apiTitle: ApiTitle): ContentItem 
 export const transformApiTitleToHeroContent = (apiTitle: ApiTitle): HeroContent => {
   const contentItem = transformApiTitleToContentItem(apiTitle);
 
+  // Format rating properly - handle N/A and ensure it's a valid number
+  const formatRating = (rating: string): string => {
+    if (rating === 'N/A' || !rating || rating.trim() === '') {
+      return 'Not Rated';
+    }
+
+    const numericRating = Number.parseFloat(rating);
+    if (Number.isNaN(numericRating)) {
+      return 'Not Rated';
+    }
+
+    // Format to 1 decimal place if it's not a whole number
+    return numericRating % 1 === 0 ? `${numericRating}.0` : numericRating.toFixed(1);
+  };
+
+  const formattedRating = formatRating(apiTitle.metaData.rating);
+  const ratingText = formattedRating === 'Not Rated' ? formattedRating : `${formattedRating}/10`;
+
   return {
     ...contentItem,
     buttonLabel: 'Watch Now',
     logoImageUrl: undefined,
-    tagline: `${apiTitle.metaData.episodeCount} Episodes • ${apiTitle.metaData.rating}/10`,
+    tagline: `${apiTitle.metaData.episodeCount} Episodes • ${ratingText}`,
+    rating: formattedRating, // Add the formatted rating as a separate field
   };
 };
 

@@ -196,7 +196,7 @@ const HeroBannerComponent: React.FC<HeroBannerProps> = ({ heroContent }) => {
 
             <View style={styles.ratingContainer}>
               <Star size={14} color="gold" fill="gold" />
-              <ThemedText style={styles.ratingText}>4.8</ThemedText>
+              <ThemedText style={styles.ratingText}>{heroContent.rating || 'Not Rated'}</ThemedText>
             </View>
           </View>
 

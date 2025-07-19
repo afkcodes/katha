@@ -40,12 +40,12 @@ const createCategoryStyles = createStyleFactory((theme) => ({
   seeAllButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(139, 92, 246, 0.3)',
+    backgroundColor: `${theme.colors.primaryVariant}30`,
     paddingHorizontal: theme.spacing.sm,
     paddingVertical: theme.spacing.xs,
     borderRadius: theme.borderRadius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.2)',
+    borderColor: `${theme.colors.primaryVariant}80`,
   },
   seeAllStyle: {
     color: theme.colors.primary,

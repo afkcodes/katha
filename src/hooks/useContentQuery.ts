@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import {
+  fetchAnimatedTitles,
   fetchLiveActionTitles,
   transformApiTitleToContentItem,
   transformApiTitleToHeroContent,
-} from '~/services/api';
-import type { HeroContent } from '~/types/content';
+} from '../services/api';
+import type { HeroContent } from '../types';
 
 // Query keys
 export const queryKeys = {
@@ -12,6 +13,7 @@ export const queryKeys = {
     all: ['titles'] as const,
     category: (category: string) => [...queryKeys.titles.all, category] as const,
     liveAction: () => [...queryKeys.titles.all, 'live_action'] as const,
+    animated: () => [...queryKeys.titles.all, 'animated'] as const,
   },
 } as const;
 
@@ -55,6 +57,52 @@ export const useLiveActionHeroContent = (): {
 } => {
   const { data, isLoading, error, refetch } = useLiveActionTitles();
 
+  const heroContent = data?.[0] ? transformApiTitleToHeroContent(data[0]) : undefined;
+
+  return {
+    data: heroContent,
+    isLoading,
+    error,
+    refetch,
+  };
+};
+
+// Hook for animated content
+export const useAnimatedContent = () => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: queryKeys.titles.animated(),
+    queryFn: fetchAnimatedTitles,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: 3,
+  });
+
+  // Transform the data to ContentItem format
+  const transformedData = data?.map(transformApiTitleToContentItem) || [];
+
+  return {
+    data: transformedData,
+    isLoading,
+    error,
+    refetch,
+  };
+};
+
+// Hook for animated hero content
+export const useAnimatedHeroContent = () => {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: queryKeys.titles.animated(),
+    queryFn: fetchAnimatedTitles,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+    retry: 3,
+  });
+
+  // Transform the first item to hero content format
   const heroContent = data?.[0] ? transformApiTitleToHeroContent(data[0]) : undefined;
 
   return {

@@ -7,7 +7,7 @@ export interface ContentItem {
   title: string;
   description?: string;
   imageUrl: string;
-  type: 'episode' | 'bhajan' | 'story' | 'movie';
+  type: 'episode' | 'bhajan' | 'story' | 'movie' | 'series';
   duration?: string;
   releaseYear?: number;
   tags?: string[];
@@ -23,6 +23,7 @@ export interface HeroContent extends ContentItem {
   buttonLabel?: string;
   logoImageUrl?: string;
   tagline?: string;
+  rating?: string;
 }
 
 // API Response Types
