@@ -1,4 +1,11 @@
-import type { ApiResponse, ApiTitle, ContentItem, HeroContent } from '~/types/content';
+import type {
+  ApiResponse,
+  ApiTitle,
+  ContentItem,
+  EpisodeItem,
+  EpisodeListResponse,
+  HeroContent,
+} from '~/types/content';
 
 const API_BASE_URL = 'https://katha.afk.codes';
 
@@ -64,6 +71,9 @@ export const fetchTitles = async (category: string): Promise<ApiTitle[]> => {
       });
     }
 
+    // Add a small delay for smoother UI transitions (50-80ms)
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 30 + 50));
+
     return data.data;
   } catch (error) {
     console.error('[API] Detailed error information:');
@@ -109,6 +119,108 @@ export const fetchLiveActionTitles = (): Promise<ApiTitle[]> => {
   return fetchTitles('live_action');
 };
 
+export const fetchAnimatedTitles = (): Promise<ApiTitle[]> => {
+  return fetchTitles('animated');
+};
+
+// New function to fetch episodes
+export const fetchEpisodes = async (seriesId?: string): Promise<EpisodeItem[]> => {
+  try {
+    if (!seriesId) {
+      throw new Error('Series ID is required to fetch episodes');
+    }
+
+    const url = `${API_BASE_URL}/titles/${seriesId}/episodes`;
+
+    console.log(`[API] Starting fetch request for episodes: ${url}`);
+
+    // Create a timeout promise for React Native compatibility
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 10000);
+    });
+
+    const fetchPromise = fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(`[API] Episodes fetch promise created, waiting for response...`);
+
+    // Race between fetch and timeout
+    const response = (await Promise.race([fetchPromise, timeoutPromise])) as Response;
+
+    console.log(`[API] Episodes response received:`, {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+      url: response.url,
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text().catch(() => 'Could not read error body');
+      console.error(`[API] Episodes HTTP Error - Status: ${response.status}, Body: ${errorBody}`);
+      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+    }
+
+    const data: EpisodeListResponse = await response.json();
+
+    console.log(`[API] Episodes JSON parsing successful:`, {
+      status: data.status,
+      seriesId: data.data?._id,
+      episodesLength: data.data?.episodes?.length || 0,
+      message: data.message,
+    });
+
+    if (data.status !== 'success') {
+      console.error(`[API] Episodes API returned non-success status:`, data);
+      throw new Error(data.message || 'Episodes API request failed');
+    }
+
+    if (!data.data || !data.data.episodes || !Array.isArray(data.data.episodes)) {
+      console.error('[API] Episodes - Invalid response format - episodes is not an array');
+      throw new Error('Invalid response format from server');
+    }
+
+    console.log(
+      `[API] Successfully fetched ${data.data.episodes.length} episodes for series: ${data.data._id}`
+    );
+
+    // Add a small delay for smoother UI transitions (50-80ms)
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 100));
+
+    return data.data.episodes;
+  } catch (error) {
+    console.error('[API] Episodes fetch error:', error);
+
+    // Check for specific error types
+    if (error instanceof TypeError) {
+      console.error('[API] Episodes TypeError detected - likely network/CORS issue');
+      if (error.message.includes('Network request failed')) {
+        console.error(
+          '[API] Episodes network request failed - check internet connection or CORS policy'
+        );
+        throw new Error('Unable to connect to server. Please check your connection and try again.');
+      }
+    }
+
+    if (error instanceof Error && error.message === 'Request timeout') {
+      console.error('[API] Episodes request timeout - server took too long to respond');
+      throw new Error('Request timeout. Please try again.');
+    }
+
+    // Log additional context
+    console.error('[API] Episodes additional context:');
+    console.error('  API_BASE_URL:', API_BASE_URL);
+    console.error('  seriesId:', seriesId);
+
+    // Re-throw the error for the caller to handle
+    throw error;
+  }
+};
+
 // Helper functions to transform API data to app format
 export const transformApiTitleToContentItem = (apiTitle: ApiTitle): ContentItem => {
   const { metaData } = apiTitle;
@@ -130,12 +242,34 @@ export const transformApiTitleToContentItem = (apiTitle: ApiTitle): ContentItem 
     return `https://${trimmedUrl}`;
   };
 
+  // Map API type to app type - handle actual API type values
+  const getContentType = (apiType: string): 'episode' | 'bhajan' | 'story' | 'movie' | 'series' => {
+    if (!apiType || apiType === 'N/A') {
+      return 'episode'; // Default fallback
+    }
+
+    const normalizedType = apiType.toLowerCase().trim();
+
+    // Map actual API type values to our app types
+    switch (normalizedType) {
+      case 'bhajan':
+        return 'bhajan';
+      case 'playlist':
+        return 'series'; // Playlists are series/collections of episodes
+      case 'movie':
+        return 'movie'; // Direct mapping for movies
+      case 'episode':
+      default:
+        return 'episode';
+    }
+  };
+
   return {
-    id: apiTitle._id,
+    id: metaData.id, // Use metaData.id (YouTube playlist ID) instead of apiTitle._id
     title: metaData.title,
     description: metaData.description !== 'N/A' ? metaData.description : undefined,
     imageUrl: getImageUrl(metaData.poster),
-    type: 'episode', // All API titles seem to be episodes based on the data
+    type: getContentType(metaData.type), // Use actual type from API instead of hardcoded 'episode'
     duration: formatDuration(metaData.duration),
     releaseYear: metaData.releaseYear !== 'N/A' ? Number.parseInt(metaData.releaseYear) : undefined,
     tags: metaData.actors.filter((actor) => actor !== 'N/A'),
@@ -145,11 +279,30 @@ export const transformApiTitleToContentItem = (apiTitle: ApiTitle): ContentItem 
 export const transformApiTitleToHeroContent = (apiTitle: ApiTitle): HeroContent => {
   const contentItem = transformApiTitleToContentItem(apiTitle);
 
+  // Format rating properly - handle N/A and ensure it's a valid number
+  const formatRating = (rating: string): string => {
+    if (rating === 'N/A' || !rating || rating.trim() === '') {
+      return 'Not Rated';
+    }
+
+    const numericRating = Number.parseFloat(rating);
+    if (Number.isNaN(numericRating)) {
+      return 'Not Rated';
+    }
+
+    // Format to 1 decimal place if it's not a whole number
+    return numericRating % 1 === 0 ? `${numericRating}.0` : numericRating.toFixed(1);
+  };
+
+  const formattedRating = formatRating(apiTitle.metaData.rating);
+  const ratingText = formattedRating === 'Not Rated' ? formattedRating : `${formattedRating}/10`;
+
   return {
     ...contentItem,
     buttonLabel: 'Watch Now',
     logoImageUrl: undefined,
-    tagline: `${apiTitle.metaData.episodeCount} Episodes • ${apiTitle.metaData.rating}/10`,
+    tagline: `${apiTitle.metaData.episodeCount} Episodes • ${ratingText}`,
+    rating: formattedRating, // Add the formatted rating as a separate field
   };
 };
 

@@ -3,6 +3,7 @@ import type React from 'react';
 import { StyleSheet, TouchableOpacity, View, type ViewStyle } from 'react-native';
 import ThemedText from '~/components/ThemedText/ThemedText';
 import { createStyleFactory, useStaticThemedStyles } from '~/theme';
+import { font } from '~/utils/screen/screenutils';
 
 interface GradientButtonProps {
   label: string;
@@ -55,7 +56,7 @@ const createGradientButtonStyles = createStyleFactory((theme) => ({
   },
   buttonIcon: {
     marginRight: theme.spacing.xs,
-    fontSize: 16,
+    fontSize: font(16),
     color: theme.colors.textOnPrimary,
   },
   // Secondary button (no gradient, just border)

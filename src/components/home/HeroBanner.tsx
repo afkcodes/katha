@@ -8,6 +8,7 @@ import ThemedText from '~/components/ThemedText/ThemedText';
 import { useI18n } from '~/i18n/useI18n';
 import { createStyleFactory, useColors, useStaticThemedStyles } from '~/theme';
 import type { HeroContent } from '~/types/content';
+import { font, s, vs } from '~/utils/screen/screenutils';
 
 interface HeroBannerProps {
   heroContent: HeroContent;
@@ -17,7 +18,7 @@ interface HeroBannerProps {
 const createHeroBannerStyles = createStyleFactory((theme) => ({
   heroSection: {
     width: '100%',
-    height: 540,
+    height: vs(540),
   },
   heroImage: {
     width: '100%',
@@ -44,10 +45,10 @@ const createHeroBannerStyles = createStyleFactory((theme) => ({
   },
   heroDescription: {
     color: 'rgba(255,255,255,0.95)',
-    fontSize: 16,
+    fontSize: font(16),
     fontWeight: '400',
     marginBottom: theme.spacing.lg,
-    lineHeight: 22,
+    lineHeight: vs(22),
     textShadowColor: 'rgba(0,0,0,0.6)',
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
@@ -71,9 +72,9 @@ const createHeroBannerStyles = createStyleFactory((theme) => ({
   },
   ratingText: {
     color: 'white',
-    fontSize: 12,
+    fontSize: font(12),
     fontWeight: '600',
-    marginLeft: 4,
+    letterSpacing: 0.3,
   },
   yearBadge: {
     backgroundColor: 'rgba(0,0,0,0.4)',
@@ -85,7 +86,7 @@ const createHeroBannerStyles = createStyleFactory((theme) => ({
   },
   yearText: {
     color: 'white',
-    fontSize: 12,
+    fontSize: font(12),
     fontWeight: '600',
   },
   genreTag: {
@@ -96,7 +97,7 @@ const createHeroBannerStyles = createStyleFactory((theme) => ({
   },
   genreText: {
     color: 'white',
-    fontSize: 11,
+    fontSize: font(11),
     fontWeight: '600',
   },
   buttonContainer: {
@@ -108,30 +109,27 @@ const createHeroBannerStyles = createStyleFactory((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: theme.spacing.md + 2,
-    paddingHorizontal: theme.spacing.xl,
-    borderRadius: theme.borderRadius.sm,
-    shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.borderRadius.full,
     flex: 1,
-    maxWidth: 200,
-    overflow: 'hidden',
-    gap: theme.spacing.md,
+    maxWidth: s(200),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   primaryButtonText: {
     color: 'white',
-    fontSize: 16,
-    fontWeight: '700',
+    fontSize: font(16),
     marginLeft: theme.spacing.xs,
     letterSpacing: 0.3,
   },
   secondaryButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    width: s(56),
+    height: s(56),
+    borderRadius: s(28),
     backgroundColor: 'rgba(0,0,0,0.5)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
@@ -196,7 +194,7 @@ const HeroBannerComponent: React.FC<HeroBannerProps> = ({ heroContent }) => {
 
             <View style={styles.ratingContainer}>
               <Star size={14} color="gold" fill="gold" />
-              <ThemedText style={styles.ratingText}>4.8</ThemedText>
+              <ThemedText style={styles.ratingText}>{heroContent.rating || 'Not Rated'}</ThemedText>
             </View>
           </View>
 
@@ -213,7 +211,7 @@ const HeroBannerComponent: React.FC<HeroBannerProps> = ({ heroContent }) => {
                 style={styles.primaryButton}
               >
                 <Play size={20} color="white" fill="white" />
-                <ThemedText style={styles.primaryButtonText}>
+                <ThemedText variant="bodyMedium" fontWeight="700" style={styles.primaryButtonText}>
                   {heroContent.buttonLabel || t('home.hero.watch')}
                 </ThemedText>
               </LinearGradient>

@@ -77,9 +77,9 @@ export const Colors: Record<ColorScheme, ColorPalette> = {
     overlay: '#2C2C2E', // Modal overlays
 
     // Primary colors - Divine purple/violet (representing spirituality and divine energy)
-    primary: '#8B5CF6', // Divine violet (vibrant but deep)
-    primaryVariant: '#6D28D9', // Deeper violet
-    primaryLight: '#A78BFA', // Lighter violet
+    primary: '#c41e3a', // Divine violet (vibrant but deep)
+    primaryVariant: '#9d182e', // Deeper violet
+    primaryLight: '#d04b61', // Lighter violet
     primaryContainer: '#1E1B24', // Very dark violet container
 
     // Secondary colors - Muted divine blue (Krishna, Vishnu, celestial waters)
@@ -125,7 +125,7 @@ export const Colors: Record<ColorScheme, ColorPalette> = {
 
     // Border colors
     border: '#2C2C2E', // Dark gray borders
-    borderFocus: '#8B5CF6', // Focused borders (divine purple, matches primary)
+    borderFocus: '#ff655c', // Focused borders (divine purple, matches primary)
     borderError: '#FF5555', // Error borders
 
     // Utility colors
@@ -142,10 +142,10 @@ export const Colors: Record<ColorScheme, ColorPalette> = {
     overlay: '#F3E8FF', // Overlays
 
     // Primary colors - Divine purple/violet (representing spirituality and wisdom)
-    primary: '#8B5CF6', // Divine violet (vibrant but deep)
-    primaryVariant: '#6D28D9', // Deeper violet
-    primaryLight: '#A78BFA', // Lighter violet
-    primaryContainer: '#F3E8FF', // Light violet container
+    primary: '#c41e3a', // Divine violet (vibrant but deep)
+    primaryVariant: '#9d182e', // Deeper violet
+    primaryLight: '#d04b61', // Lighter violet
+    primaryContainer: '#1E1B24', // Very dark violet container
 
     // Secondary colors - Royal blue (divine wisdom)
     secondary: '#1E40AF', // Divine blue

@@ -11,4 +11,25 @@
 -keep class com.swmansion.reanimated.** { *; }
 -keep class com.facebook.react.turbomodule.** { *; }
 
+# React Native
+-keep class com.facebook.react.** { *; }
+-keep class com.facebook.hermes.reactexecutor.** { *; }
+-dontwarn com.facebook.react.**
+
+# Expo
+-keep class expo.** { *; }
+-keep class com.expo.** { *; }
+-dontwarn expo.**
+
+# Fast Image
+-keep class com.dylanvann.fastimage.** { *; }
+
+# VLC Player
+-keep class org.videolan.** { *; }
+-dontwarn org.videolan.**
+
+# YouTube.js - Keep essential classes but allow obfuscation of others
+-keep class youtubei.js.** { *; }
+-dontwarn youtubei.js.**
+
 # Add any project specific keep options here:

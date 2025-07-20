@@ -13,6 +13,17 @@
   "bhajans": {
     "title": "Bhajans"
   },
+  "episodes": {
+    "title": "Episodes",
+    "subtitle": "Watch your favorite spiritual episodes",
+    "play": "Play",
+    "playEpisode": "Play Episode",
+    "loading": "Loading episodes...",
+    "noEpisodesAvailable": "No episodes available at the moment"
+  },
+  "common": {
+    "cancel": "Cancel"
+  },
   "home": {
     "hero": {
       "new": "NEW",
@@ -29,7 +40,8 @@
       "bhajan": "Bhajan",
       "episode": "Episode",
       "story": "Story",
-      "movie": "Movie"
+      "movie": "Movie",
+      "series": "Series"
     }
   }
 }

@@ -7,7 +7,7 @@ export interface ContentItem {
   title: string;
   description?: string;
   imageUrl: string;
-  type: 'episode' | 'bhajan' | 'story' | 'movie';
+  type: 'episode' | 'bhajan' | 'story' | 'movie' | 'series';
   duration?: string;
   releaseYear?: number;
   tags?: string[];
@@ -23,6 +23,7 @@ export interface HeroContent extends ContentItem {
   buttonLabel?: string;
   logoImageUrl?: string;
   tagline?: string;
+  rating?: string;
 }
 
 // API Response Types
@@ -51,4 +52,31 @@ export interface ApiResponse {
   data: ApiTitle[];
   message: string;
   code: number;
+}
+
+// Episode specific types
+export interface EpisodePoster {
+  lq: string;
+  hq: string;
+}
+
+export interface EpisodeItem {
+  _id: string;
+  id: string; // YouTube video ID
+  title: string;
+  description: string;
+  type: 'episode';
+  poster: EpisodePoster;
+}
+
+export interface EpisodeListData {
+  _id: string;
+  episodes: EpisodeItem[];
+}
+
+export interface EpisodeListResponse {
+  status: string;
+  data: EpisodeListData;
+  message?: string;
+  code?: number;
 }

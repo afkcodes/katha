@@ -13,6 +13,17 @@
   "bhajans": {
     "title": "भजन"
   },
+  "episodes": {
+    "title": "एपिसोड",
+    "subtitle": "अपने पसंदीदा आध्यात्मिक एपिसोड देखें",
+    "play": "चलाएं",
+    "playEpisode": "एपिसोड चलाएं",
+    "loading": "एपिसोड लोड हो रहे हैं...",
+    "noEpisodesAvailable": "फिलहाल कोई एपिसोड उपलब्ध नहीं है"
+  },
+  "common": {
+    "cancel": "रद्द करें"
+  },
   "home": {
     "hero": {
       "new": "नया",
@@ -29,7 +40,8 @@
       "bhajan": "भजन",
       "episode": "एपिसोड",
       "story": "कहानी",
-      "movie": "फिल्म"
+      "movie": "फिल्म",
+      "series": "सीरीज़"
     }
   }
 }
