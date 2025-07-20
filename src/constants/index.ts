@@ -128,13 +128,17 @@ export const ANIMATION_DURATION = {
   VERY_SLOW: 800,
 } as const;
 
+import { vs } from '~/utils/screen/screenutils';
+
+// ... rest of the file ...
+
 // Common dimensions
 export const DIMENSIONS = {
-  HEADER_HEIGHT: 56,
-  TAB_BAR_HEIGHT: 64,
-  STORY_CARD_HEIGHT: 200,
-  CHARACTER_CARD_HEIGHT: 150,
-  BANNER_HEIGHT: 120,
+  HEADER_HEIGHT: vs(56),
+  TAB_BAR_HEIGHT: vs(64),
+  STORY_CARD_HEIGHT: vs(200),
+  CHARACTER_CARD_HEIGHT: vs(150),
+  BANNER_HEIGHT: vs(120),
 } as const;
 
 export type Epic = keyof typeof EPICS;

@@ -9,6 +9,7 @@ import type {
   ContentCategory as ContentCategoryType,
   ContentItem as ContentItemType,
 } from '~/types/content';
+import { font } from '~/utils/screen/screenutils';
 import { ContentItem } from './ContentItem';
 
 interface ContentCategoryProps {
@@ -35,7 +36,7 @@ const createCategoryStyles = createStyleFactory((theme) => ({
   titleStyle: {
     color: theme.colors.text,
     letterSpacing: 0.5,
-    fontSize: 20,
+    fontSize: font(20),
   },
   seeAllButton: {
     flexDirection: 'row',
@@ -50,7 +51,7 @@ const createCategoryStyles = createStyleFactory((theme) => ({
   seeAllStyle: {
     color: theme.colors.primary,
     fontWeight: '600',
-    fontSize: 13,
+    fontSize: font(13),
     letterSpacing: 0.3,
   },
   chevronIcon: {

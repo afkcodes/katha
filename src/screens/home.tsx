@@ -1,4 +1,5 @@
 import type React from 'react';
+import { useEffect, useState } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 import {
   ContentCategory,
@@ -15,10 +16,16 @@ import {
 } from '~/hooks/useContentQuery';
 import useNestedScroll from '~/hooks/useNestedScroll';
 import type { ContentCategory as ContentCategoryType } from '~/types/content';
+import { vs } from '~/utils/screen/screenutils';
 
 const Home: React.FC = () => {
   // Disable debug logging for better performance
   const { parentProps, childProps } = useNestedScroll(false);
+
+  // Animation state
+  const [isContentReady, setIsContentReady] = useState(false);
+  const [showLoaderUntil, setShowLoaderUntil] = useState<number>(0);
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
   // Fetch hero content and live action titles
   const {
@@ -46,7 +53,46 @@ const Home: React.FC = () => {
   const hasError = heroError && contentError && animatedError;
   const isLoading = heroLoading || contentLoading || animatedLoading;
 
+  // Set minimum loader time when loading starts
+  useEffect(() => {
+    if (isLoading) {
+      setShowLoaderUntil(100); // Show loader for at least 100ms
+    }
+  }, [isLoading]);
+
+  // Handle content ready state with delay and animation
+  useEffect(() => {
+    const hasContent = heroContent || liveActionContent || animatedContent;
+
+    if (!isLoading && hasContent) {
+      // Check if minimum loader time has passed
+      const now = Date.now();
+      const remainingLoaderTime = Math.max(0, showLoaderUntil - now);
+
+      const timer = setTimeout(
+        () => {
+          setIsContentReady(true);
+          // Fade in animation
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 400,
+            useNativeDriver: true,
+          }).start();
+        },
+        Math.max(remainingLoaderTime, 100)
+      ); // Ensure minimum 100ms total or 50-80ms delay
+
+      return () => clearTimeout(timer);
+    } else {
+      setIsContentReady(false);
+      fadeAnim.setValue(0);
+    }
+  }, [isLoading, heroContent, liveActionContent, animatedContent, fadeAnim, showLoaderUntil]);
+
   const handleRetry = async () => {
+    setIsContentReady(false);
+    setShowLoaderUntil(100); // Minimum loader time for retry
+    fadeAnim.setValue(0);
     await Promise.all([refetchHero(), refetchContent(), refetchAnimated()]);
   };
 
@@ -103,32 +149,30 @@ const Home: React.FC = () => {
         removeClippedSubviews={true}
         {...parentProps}
       >
-        {heroLoading && !heroContent ? (
-          <HeroBannerSkeleton />
-        ) : heroContent ? (
-          <HeroBanner heroContent={heroContent} />
-        ) : null}
-
-        <View style={styles.contentWrapper}>
-          {contentLoading && !liveActionContent ? (
-            <ContentCategorySkeleton />
-          ) : liveActionCategory ? (
-            <ContentCategory category={liveActionCategory} scrollProps={childProps} />
-          ) : null}
-
-          {animatedLoading && !animatedContent ? (
-            <ContentCategorySkeleton />
-          ) : animatedCategory ? (
-            <ContentCategory category={animatedCategory} scrollProps={childProps} />
-          ) : null}
-
-          {(heroLoading || contentLoading || animatedLoading) && (
-            <>
+        {isLoading || !isContentReady ? (
+          <>
+            <HeroBannerSkeleton />
+            <View style={styles.contentWrapper}>
               <ContentCategorySkeleton />
               <ContentCategorySkeleton />
-            </>
-          )}
-        </View>
+              <ContentCategorySkeleton />
+            </View>
+          </>
+        ) : (
+          <Animated.View style={[styles.animatedContainer, { opacity: fadeAnim }]}>
+            {heroContent && <HeroBanner heroContent={heroContent} />}
+
+            <View style={styles.contentWrapper}>
+              {liveActionCategory && (
+                <ContentCategory category={liveActionCategory} scrollProps={childProps} />
+              )}
+
+              {animatedCategory && (
+                <ContentCategory category={animatedCategory} scrollProps={childProps} />
+              )}
+            </View>
+          </Animated.View>
+        )}
       </Animated.ScrollView>
     </SafeAreaAwareView>
   );
@@ -144,13 +188,16 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: vs(40),
     flexGrow: 1,
     paddingHorizontal: 0,
   },
   contentWrapper: {
     paddingBottom: 0,
     paddingHorizontal: 0,
+  },
+  animatedContainer: {
+    flex: 1,
   },
 });
 

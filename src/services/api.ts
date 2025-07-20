@@ -1,4 +1,11 @@
-import type { ApiResponse, ApiTitle, ContentItem, HeroContent } from '~/types/content';
+import type {
+  ApiResponse,
+  ApiTitle,
+  ContentItem,
+  EpisodeItem,
+  EpisodeListResponse,
+  HeroContent,
+} from '~/types/content';
 
 const API_BASE_URL = 'https://katha.afk.codes';
 
@@ -64,6 +71,9 @@ export const fetchTitles = async (category: string): Promise<ApiTitle[]> => {
       });
     }
 
+    // Add a small delay for smoother UI transitions (50-80ms)
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 30 + 50));
+
     return data.data;
   } catch (error) {
     console.error('[API] Detailed error information:');
@@ -113,6 +123,104 @@ export const fetchAnimatedTitles = (): Promise<ApiTitle[]> => {
   return fetchTitles('animated');
 };
 
+// New function to fetch episodes
+export const fetchEpisodes = async (seriesId?: string): Promise<EpisodeItem[]> => {
+  try {
+    if (!seriesId) {
+      throw new Error('Series ID is required to fetch episodes');
+    }
+
+    const url = `${API_BASE_URL}/titles/${seriesId}/episodes`;
+
+    console.log(`[API] Starting fetch request for episodes: ${url}`);
+
+    // Create a timeout promise for React Native compatibility
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timeout')), 10000);
+    });
+
+    const fetchPromise = fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(`[API] Episodes fetch promise created, waiting for response...`);
+
+    // Race between fetch and timeout
+    const response = (await Promise.race([fetchPromise, timeoutPromise])) as Response;
+
+    console.log(`[API] Episodes response received:`, {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+      url: response.url,
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text().catch(() => 'Could not read error body');
+      console.error(`[API] Episodes HTTP Error - Status: ${response.status}, Body: ${errorBody}`);
+      throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+    }
+
+    const data: EpisodeListResponse = await response.json();
+
+    console.log(`[API] Episodes JSON parsing successful:`, {
+      status: data.status,
+      seriesId: data.data?._id,
+      episodesLength: data.data?.episodes?.length || 0,
+      message: data.message,
+    });
+
+    if (data.status !== 'success') {
+      console.error(`[API] Episodes API returned non-success status:`, data);
+      throw new Error(data.message || 'Episodes API request failed');
+    }
+
+    if (!data.data || !data.data.episodes || !Array.isArray(data.data.episodes)) {
+      console.error('[API] Episodes - Invalid response format - episodes is not an array');
+      throw new Error('Invalid response format from server');
+    }
+
+    console.log(
+      `[API] Successfully fetched ${data.data.episodes.length} episodes for series: ${data.data._id}`
+    );
+
+    // Add a small delay for smoother UI transitions (50-80ms)
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * 100));
+
+    return data.data.episodes;
+  } catch (error) {
+    console.error('[API] Episodes fetch error:', error);
+
+    // Check for specific error types
+    if (error instanceof TypeError) {
+      console.error('[API] Episodes TypeError detected - likely network/CORS issue');
+      if (error.message.includes('Network request failed')) {
+        console.error(
+          '[API] Episodes network request failed - check internet connection or CORS policy'
+        );
+        throw new Error('Unable to connect to server. Please check your connection and try again.');
+      }
+    }
+
+    if (error instanceof Error && error.message === 'Request timeout') {
+      console.error('[API] Episodes request timeout - server took too long to respond');
+      throw new Error('Request timeout. Please try again.');
+    }
+
+    // Log additional context
+    console.error('[API] Episodes additional context:');
+    console.error('  API_BASE_URL:', API_BASE_URL);
+    console.error('  seriesId:', seriesId);
+
+    // Re-throw the error for the caller to handle
+    throw error;
+  }
+};
+
 // Helper functions to transform API data to app format
 export const transformApiTitleToContentItem = (apiTitle: ApiTitle): ContentItem => {
   const { metaData } = apiTitle;
@@ -157,7 +265,7 @@ export const transformApiTitleToContentItem = (apiTitle: ApiTitle): ContentItem 
   };
 
   return {
-    id: apiTitle._id,
+    id: metaData.id, // Use metaData.id (YouTube playlist ID) instead of apiTitle._id
     title: metaData.title,
     description: metaData.description !== 'N/A' ? metaData.description : undefined,
     imageUrl: getImageUrl(metaData.poster),

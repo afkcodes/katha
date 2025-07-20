@@ -53,3 +53,30 @@ export interface ApiResponse {
   message: string;
   code: number;
 }
+
+// Episode specific types
+export interface EpisodePoster {
+  lq: string;
+  hq: string;
+}
+
+export interface EpisodeItem {
+  _id: string;
+  id: string; // YouTube video ID
+  title: string;
+  description: string;
+  type: 'episode';
+  poster: EpisodePoster;
+}
+
+export interface EpisodeListData {
+  _id: string;
+  episodes: EpisodeItem[];
+}
+
+export interface EpisodeListResponse {
+  status: string;
+  data: EpisodeListData;
+  message?: string;
+  code?: number;
+}

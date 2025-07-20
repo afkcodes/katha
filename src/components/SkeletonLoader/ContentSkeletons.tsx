@@ -18,7 +18,7 @@ const createContentSkeletonStyles = createStyleFactory((theme) => ({
   },
   contentTitleSkeleton: {
     width: '80%',
-    height: 16,
+    height: vs(16),
     borderRadius: theme.borderRadius.xs,
   },
   categorySkeleton: {
@@ -32,13 +32,13 @@ const createContentSkeletonStyles = createStyleFactory((theme) => ({
     paddingHorizontal: theme.spacing.md,
   },
   categoryTitleSkeleton: {
-    width: 120,
-    height: 20,
+    width: s(120),
+    height: vs(20),
     borderRadius: theme.borderRadius.xs,
   },
   seeAllButtonSkeleton: {
-    width: 60,
-    height: 24,
+    width: s(60),
+    height: vs(24),
     borderRadius: theme.borderRadius.lg,
   },
   categoryListSkeleton: {
@@ -48,8 +48,67 @@ const createContentSkeletonStyles = createStyleFactory((theme) => ({
   },
   heroBannerSkeleton: {
     width: '100%',
-    height: 540,
+    height: vs(540),
     borderRadius: 0,
+  },
+  episodeCardSkeleton: {
+    paddingHorizontal: s(16),
+    paddingVertical: vs(12),
+    backgroundColor: 'transparent',
+  },
+  episodeContentSkeleton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  episodePosterSkeleton: {
+    width: s(120),
+    height: vs(68),
+    borderRadius: theme.borderRadius.md,
+    marginRight: theme.spacing.md,
+  },
+  episodeTextContentSkeleton: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  episodeTitleSkeleton: {
+    width: '85%',
+    height: vs(16),
+    borderRadius: theme.borderRadius.xs,
+    marginBottom: theme.spacing.xs,
+  },
+  episodeDescriptionSkeleton: {
+    width: '70%',
+    height: vs(12),
+    borderRadius: theme.borderRadius.xs,
+  },
+  episodeListHeaderSkeleton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: s(16),
+    paddingVertical: vs(12),
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border,
+    backgroundColor: theme.colors.background,
+  },
+  episodeBackButtonSkeleton: {
+    width: s(40),
+    height: vs(32),
+    borderRadius: theme.borderRadius.sm,
+    marginRight: theme.spacing.md,
+  },
+  episodeHeaderContentSkeleton: {
+    flex: 1,
+  },
+  episodeHeaderTitleSkeleton: {
+    width: '60%',
+    height: vs(20),
+    borderRadius: theme.borderRadius.xs,
+    marginBottom: 4,
+  },
+  episodeHeaderSubtitleSkeleton: {
+    width: '40%',
+    height: vs(14),
+    borderRadius: theme.borderRadius.xs,
   },
 }));
 
@@ -89,4 +148,50 @@ export const HeroBannerSkeleton: React.FC = () => {
   const styles = useStaticThemedStyles(createContentSkeletonStyles);
 
   return <SkeletonLoader style={styles.heroBannerSkeleton} />;
+};
+
+// Episode card skeleton
+export const EpisodeCardSkeleton: React.FC = () => {
+  const styles = useStaticThemedStyles(createContentSkeletonStyles);
+
+  return (
+    <View style={styles.episodeCardSkeleton}>
+      <View style={styles.episodeContentSkeleton}>
+        <SkeletonLoader style={styles.episodePosterSkeleton} />
+        <View style={styles.episodeTextContentSkeleton}>
+          <SkeletonLoader style={styles.episodeTitleSkeleton} />
+          <SkeletonLoader style={styles.episodeDescriptionSkeleton} />
+        </View>
+      </View>
+    </View>
+  );
+};
+
+// Episode list header skeleton
+export const EpisodeListHeaderSkeleton: React.FC = () => {
+  const styles = useStaticThemedStyles(createContentSkeletonStyles);
+
+  return (
+    <View style={styles.episodeListHeaderSkeleton}>
+      <SkeletonLoader style={styles.episodeBackButtonSkeleton} />
+      <View style={styles.episodeHeaderContentSkeleton}>
+        <SkeletonLoader style={styles.episodeHeaderTitleSkeleton} />
+        <SkeletonLoader style={styles.episodeHeaderSubtitleSkeleton} />
+      </View>
+    </View>
+  );
+};
+
+// Episode list skeleton with multiple episode cards
+export const EpisodeListSkeleton: React.FC = () => {
+  return (
+    <>
+      <EpisodeListHeaderSkeleton />
+      <View style={{ flex: 1, backgroundColor: 'transparent' }}>
+        {Array.from({ length: 8 }, (_, index) => (
+          <EpisodeCardSkeleton key={`episode-skeleton-${Date.now()}-${index}`} />
+        ))}
+      </View>
+    </>
+  );
 };

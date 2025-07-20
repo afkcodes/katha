@@ -3,6 +3,7 @@ import type React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import ThemedText from '~/components/ThemedText/ThemedText';
 import { createStyleFactory, useColors, useStaticThemedStyles } from '~/theme';
+import { s, vs } from '~/utils/screen/screenutils';
 
 interface ErrorStateProps {
   error: Error | null;
@@ -20,9 +21,9 @@ const createErrorStateStyles = createStyleFactory((theme) => ({
     backgroundColor: theme.colors.background,
   },
   iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: s(80),
+    height: s(80),
+    borderRadius: s(40),
     backgroundColor: theme.colors.surface,
     justifyContent: 'center',
     alignItems: 'center',
@@ -43,7 +44,7 @@ const createErrorStateStyles = createStyleFactory((theme) => ({
     marginBottom: theme.spacing.xl,
     color: theme.colors.textSecondary,
     opacity: 0.7,
-    lineHeight: 22,
+    lineHeight: vs(22),
   },
   retryButton: {
     flexDirection: 'row',

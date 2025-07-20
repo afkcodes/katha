@@ -1,11 +1,12 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { NavigationContext } from 'navigation-react';
 import type React from 'react';
-import { memo } from 'react';
+import { memo, useContext } from 'react';
 import { Animated, TouchableOpacity, View } from 'react-native';
 import { ThumbnailImage } from '~/components/OptimizedFastImage';
 import ThemedText from '~/components/ThemedText/ThemedText';
 import { useI18n } from '~/i18n/useI18n';
-import { createStyleFactory, s, useColors, useStaticThemedStyles, vs } from '~/theme';
+import { createStyleFactory, font, s, useColors, useStaticThemedStyles, vs } from '~/theme';
 import type { ContentItem as ContentItemType } from '~/types/content';
 
 interface ContentItemProps {
@@ -51,7 +52,7 @@ const createContentItemStyles = createStyleFactory((theme) => ({
     left: theme.spacing.xs,
   },
   itemTypeBadge: {
-    paddingVertical: 2,
+    paddingVertical: vs(2),
     paddingHorizontal: theme.spacing.xs,
     borderRadius: theme.borderRadius.xs,
   },
@@ -59,7 +60,7 @@ const createContentItemStyles = createStyleFactory((theme) => ({
     position: 'absolute',
     bottom: theme.spacing.xs,
     right: theme.spacing.xs,
-    paddingVertical: 2,
+    paddingVertical: vs(2),
     paddingHorizontal: theme.spacing.xs,
     borderRadius: theme.borderRadius.xs,
   },
@@ -74,7 +75,7 @@ const createContentItemStyles = createStyleFactory((theme) => ({
     color: theme.colors.text,
     marginTop: theme.spacing.xs,
     fontWeight: '500',
-    fontSize: 14,
+    fontSize: font(14),
     letterSpacing: 0.2,
   },
   bhajanBadge: {
@@ -86,12 +87,16 @@ const createContentItemStyles = createStyleFactory((theme) => ({
   episodeBadge: {
     backgroundColor: `${theme.colors.secondary}CC`,
   },
+  seriesBadge: {
+    backgroundColor: `${theme.colors.primary}CC`,
+  },
 }));
 
 const ContentItemComponent: React.FC<ContentItemProps> = ({ item }) => {
   const colors = useColors();
   const styles = useStaticThemedStyles(createContentItemStyles);
   const { t } = useI18n();
+  const { stateNavigator } = useContext(NavigationContext);
 
   // Optimize animation by creating it once
   const scale = new Animated.Value(1);
@@ -114,6 +119,24 @@ const ContentItemComponent: React.FC<ContentItemProps> = ({ item }) => {
     }).start();
   };
 
+  const handlePress = () => {
+    // Navigate to episode list if the item type is series or has episodes
+    if (item.type === 'series' || item.type === 'episode') {
+      try {
+        stateNavigator.navigate('episode_list', {
+          seriesId: item.id,
+          seriesTitle: item.title,
+          seriesImageUrl: item.imageUrl,
+        });
+      } catch (error) {
+        console.error('Navigation error:', error);
+      }
+    } else {
+      // For other types (bhajan, story, movie), you could implement different navigation
+      console.log('Playing content:', item.title);
+    }
+  };
+
   // Memoize gradient colors to prevent recreation
   const gradientColors = ['transparent', 'rgba(0,0,0,0.7)'] as const;
 
@@ -124,6 +147,8 @@ const ContentItemComponent: React.FC<ContentItemProps> = ({ item }) => {
         return styles.bhajanBadge;
       case 'story':
         return styles.storyBadge;
+      case 'series':
+        return styles.seriesBadge;
       default:
         return styles.episodeBadge;
     }
@@ -135,6 +160,7 @@ const ContentItemComponent: React.FC<ContentItemProps> = ({ item }) => {
       activeOpacity={0.9}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
+      onPress={handlePress}
     >
       <Animated.View style={{ transform: [{ scale }] }}>
         <View style={styles.contentImageContainer}>
